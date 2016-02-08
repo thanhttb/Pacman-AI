@@ -113,11 +113,12 @@ def breadthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   frontier = util.Queue()
-  startNode = (problem.getStartState(), [])
   visited = []
   visited.append(problem.getStartState())
   successors = problem.getSuccessors(problem.getStartState())
   for i in successors:
+    if(problem.isGoalState(i[0])):
+      return [i[1]]
     frontier.push((i, [i[1]]))
   while not frontier.isEmpty():
     curr = frontier.pop()
@@ -125,12 +126,12 @@ def breadthFirstSearch(problem):
     currDir = curr[0][1]
     currPath = curr[1]
     visited.append(currLoc)
-    if(problem.isGoalState(currLoc)):
-      return currPath
     successors = problem.getSuccessors(currLoc)
     successorsList = list(successors)
     for i in successorsList:
       if i[0] not in visited:
+        if(problem.isGoalState(i[0])):
+          return currPath + [i[1]]
         frontier.push((i, currPath + [i[1]]))
   return []
       
@@ -151,12 +152,14 @@ def uniformCostSearch(problem):
     currPath = curr[1]
     currCost = curr[2]
     visited.append(currLoc)
-    if(problem.isGoalState(currLoc)):
+    if(problem.isGoalState(i[0])):
       return currPath
     successors = problem.getSuccessors(currLoc)
     successorsList = list(successors)
     for i in successorsList:
       if i[0] not in visited:
+        if(problem.isGoalState(i[0])):
+          return currPath + [i[1]]
         newNode = (i, currPath+[i[1]], currCost + i[2])
         frontier.push(newNode, currCost + i[2])
   return []
@@ -171,8 +174,35 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
-    
+  frontier = util.PriorityQueue()
+  visited = []
+  visited.append(problem.getStartState())
+  successors = problem.getSuccessors(problem.getStartState())
+  for i in successors:
+    h = heuristic(i[0], problem)
+    f = i[2] + h
+    node = (i, [i[1]], f)
+    frontier.push(node, f)
+  while not frontier.isEmpty():
+    curr = frontier.pop()
+    currLoc = curr[0][0]
+    currDir = curr[0][1]
+    currPath = curr[1]
+    currCost = curr[2]
+    visited.append(currLoc)
+    if(problem.isGoalState(i[0])):
+      return currPath
+    successors = problem.getSuccessors(currLoc)
+    successorsList = list(successors)
+    for i in successorsList:
+      if i[0] not in visited:
+        if(problem.isGoalState(i[0])):
+          return currPath + [i[1]]
+        h = heuristic(i[0], problem)
+        f = currCost + i[2] + h
+        newNode = (i, currPath+[i[1]], f)
+        frontier.push(newNode, f)
+  return []
   
 # Abbreviations
 bfs = breadthFirstSearch
