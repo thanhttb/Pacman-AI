@@ -86,24 +86,23 @@ def depthFirstSearch(problem):
   "*** YOUR CODE HERE ***"
   
   frontier = util.Stack()
-  successors = problem.getSuccessors(problem.getStartState())
   visited = []
-  visited.append(problem.getStartState())
-  for i in successors:
-    frontier.push((i, [i[1]]))
+  startNode = (problem.getStartState(), None, [])
+  frontier.push(startNode)
   while not frontier.isEmpty():
     curr = frontier.pop()
-    currLoc = curr[0][0]
-    currDir = curr[0][1]
-    currPath = curr[1]
-    visited.append(currLoc)
-    if(problem.isGoalState(currLoc)):
-      return currPath
-    successors = problem.getSuccessors(currLoc)
-    successorsList = list(successors)
-    for i in successorsList:
-      if i[0] not in visited:
-        frontier.push((i, currPath + [i[1]]))
+    currLoc = curr[0]
+    currDir = curr[1]
+    currPath = curr[2]
+    if(currLoc not in visited):
+      visited.append(currLoc)
+      if(problem.isGoalState(currLoc)):
+        return currPath
+      successors = problem.getSuccessors(currLoc)
+      successorsList = list(successors)
+      for i in successorsList:
+        if i[0] not in visited:
+          frontier.push((i[0], i[1], currPath + [i[1]]))
   return []
 
 def breadthFirstSearch(problem):
@@ -114,25 +113,22 @@ def breadthFirstSearch(problem):
   "*** YOUR CODE HERE ***"
   frontier = util.Queue()
   visited = []
-  visited.append(problem.getStartState())
-  successors = problem.getSuccessors(problem.getStartState())
-  for i in successors:
-    if(problem.isGoalState(i[0])):
-      return [i[1]]
-    frontier.push((i, [i[1]]))
+  startNode = (problem.getStartState(), None, [])
+  frontier.push(startNode)
   while not frontier.isEmpty():
     curr = frontier.pop()
-    currLoc = curr[0][0]
-    currDir = curr[0][1]
-    currPath = curr[1]
-    visited.append(currLoc)
-    successors = problem.getSuccessors(currLoc)
-    successorsList = list(successors)
-    for i in successorsList:
-      if i[0] not in visited:
-        if(problem.isGoalState(i[0])):
-          return currPath + [i[1]]
-        frontier.push((i, currPath + [i[1]]))
+    currLoc = curr[0]
+    currDir = curr[1]
+    currPath = curr[2]
+    if(currLoc not in visited):
+      visited.append(currLoc)
+      if(problem.isGoalState(currLoc)):
+        return currPath
+      successors = problem.getSuccessors(currLoc)
+      successorsList = list(successors)
+      for i in successorsList:
+        if i[0] not in visited:
+          frontier.push((i[0], i[1], currPath + [i[1]]))
   return []
       
 def uniformCostSearch(problem):
@@ -140,28 +136,26 @@ def uniformCostSearch(problem):
   "*** YOUR CODE HERE ***"
   frontier = util.PriorityQueue()
   visited = []
-  visited.append(problem.getStartState())
-  successors = problem.getSuccessors(problem.getStartState())
-  for i in successors:
-    node = (i, [i[1]], i[2])
-    frontier.push(node, i[2])
+  startNode = ((problem.getStartState(), None, 0), [], 0)
+  frontier.push(startNode, None)
   while not frontier.isEmpty():
     curr = frontier.pop()
     currLoc = curr[0][0]
     currDir = curr[0][1]
     currPath = curr[1]
     currCost = curr[2]
-    visited.append(currLoc)
-    if(problem.isGoalState(i[0])):
-      return currPath
-    successors = problem.getSuccessors(currLoc)
-    successorsList = list(successors)
-    for i in successorsList:
-      if i[0] not in visited:
-        if(problem.isGoalState(i[0])):
-          return currPath + [i[1]]
-        newNode = (i, currPath+[i[1]], currCost + i[2])
-        frontier.push(newNode, currCost + i[2])
+    if(currLoc not in visited):
+      visited.append(currLoc)
+      if(problem.isGoalState(currLoc)):
+        return currPath
+      successors = problem.getSuccessors(currLoc)
+      successorsList = list(successors)
+      for i in successorsList:
+        if i[0] not in visited:
+          if(problem.isGoalState(i[0])):
+            return currPath + [i[1]]
+          newNode = (i, currPath+[i[1]], currCost + i[2])
+          frontier.push(newNode, currCost + i[2])
   return []
 
 def nullHeuristic(state, problem=None):
@@ -177,30 +171,28 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   frontier = util.PriorityQueue()
   visited = []
   visited.append(problem.getStartState())
-  successors = problem.getSuccessors(problem.getStartState())
-  for i in successors:
-    h = heuristic(i[0], problem)
-    f = i[2] + h
-    node = (i, [i[1]], f)
-    frontier.push(node, f)
+  h = heuristic(problem.getStartState(), problem)
+  g = 0
+  f = g + h
+  startingNode = (problem.getStartState(), None, g, []);
+  frontier.push(startingNode, f)
   while not frontier.isEmpty():
     curr = frontier.pop()
-    currLoc = curr[0][0]
-    currDir = curr[0][1]
-    currPath = curr[1]
+    currLoc = curr[0]
+    currDir = curr[1]
     currCost = curr[2]
+    currPath = curr[3]
     visited.append(currLoc)
-    if(problem.isGoalState(i[0])):
+    if(problem.isGoalState(currLoc)):
       return currPath
     successors = problem.getSuccessors(currLoc)
     successorsList = list(successors)
     for i in successorsList:
       if i[0] not in visited:
-        if(problem.isGoalState(i[0])):
-          return currPath + [i[1]]
         h = heuristic(i[0], problem)
-        f = currCost + i[2] + h
-        newNode = (i, currPath+[i[1]], f)
+        g = currCost + i[2]
+        f = g + h
+        newNode = (i[0], i[1], g, currPath+[i[1]])
         frontier.push(newNode, f)
   return []
   

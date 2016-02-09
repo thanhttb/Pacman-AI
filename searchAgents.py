@@ -276,17 +276,24 @@ class CornersProblem(search.SearchProblem):
         print 'Warning: no food in corner ' + str(corner)
     self._expanded = 0 # Number of search nodes expanded
     
-    "*** YOUR CODE HERE ***"
-    
   def getStartState(self):
     "Returns the start state (in your state space, not the full Pacman state space)"
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    currLoc = self.startingPosition
+    currCorners = []
+    if currLoc in self.corners:
+      currCorners.append(currLoc)
+    return (self.startingPosition, currCorners)
     
   def isGoalState(self, state):
     "Returns whether this search state is a goal state of the problem"
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    currLoc = state[0]
+    currCorners = state[1]
+    if currLoc in self.corners:
+      if not currLoc in currCorners:
+        currCorners.append(currLoc)
+    return len(currCorners) == 4
        
   def getSuccessors(self, state):
     """
@@ -310,8 +317,23 @@ class CornersProblem(search.SearchProblem):
       #   hitsWall = self.walls[nextx][nexty]
       
       "*** YOUR CODE HERE ***"
+      x,y = state[0]
+      corners = state[1]
+      dx, dy = Actions.directionToVector(action)
+      nextx, nexty = int(x + dx), int(y + dy)
+      if not self.walls[nextx][nexty]:
+        currLoc = (nextx, nexty)
+        cost = 1
+        successorsCorners = list(corners)
+        if currLoc in self.corners:
+          if not currLoc in successorsCorners:
+            successorsCorners.append(currLoc)
+        successor = ((currLoc, successorsCorners), action, cost)
+        successors.append(successor)
+        
+    # Bookkeeping for display purposes
+    self._expanded += 1 
       
-    self._expanded += 1
     return successors
 
   def getCostOfActions(self, actions):
