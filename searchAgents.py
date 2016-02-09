@@ -283,13 +283,14 @@ class CornersProblem(search.SearchProblem):
     currCorners = []
     if currLoc in self.corners:
       currCorners.append(currLoc)
-    return (self.startingPosition, currCorners)
+    return (self.startingPosition, sorted(currCorners))
     
   def isGoalState(self, state):
     "Returns whether this search state is a goal state of the problem"
     "*** YOUR CODE HERE ***"
     currLoc = state[0]
     currCorners = state[1]
+    currCorners = sorted(currCorners)
     if currLoc in self.corners:
       if not currLoc in currCorners:
         currCorners.append(currLoc)
@@ -318,7 +319,7 @@ class CornersProblem(search.SearchProblem):
       
       "*** YOUR CODE HERE ***"
       x,y = state[0]
-      corners = state[1]
+      corners = sorted(state[1])
       dx, dy = Actions.directionToVector(action)
       nextx, nexty = int(x + dx), int(y + dy)
       if not self.walls[nextx][nexty]:
@@ -328,7 +329,7 @@ class CornersProblem(search.SearchProblem):
         if currLoc in self.corners:
           if not currLoc in successorsCorners:
             successorsCorners.append(currLoc)
-        successor = ((currLoc, successorsCorners), action, cost)
+        successor = ((currLoc, sorted(successorsCorners)), action, cost)
         successors.append(successor)
         
     # Bookkeeping for display purposes
