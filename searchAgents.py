@@ -35,6 +35,7 @@ import util
 import time
 import search
 import searchAgents
+import sys
 
 class GoWestAgent(Agent):
   "An agent that goes West until it can't."
@@ -366,9 +367,25 @@ def cornersHeuristic(state, problem):
   """
   corners = problem.corners # These are the corner coordinates
   walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-  
-  "*** YOUR CODE HERE ***"
-  return 0 # Default to trivial solution
+  currLoc = state[0]
+  currCorners = sorted(state[1])
+  neededCorners = []
+  for i in problem.corners:
+    if i not in currCorners:
+      neededCorners.append(i)
+  if not neededCorners:
+    return 0
+  minDistance = sys.maxint
+  for i in corners:
+    if i in neededCorners:
+      currDistance = util.manhattanDistance(currLoc, i)
+      neededCorners.remove(i)
+      currCorners.append(i)
+      nextState = (i, currCorners)
+      remainderDistance = cornersHeuristic(nextState, problem)
+      minDistance = min(minDistance, currDistance + remainderDistance)
+      return minDistance
+  return minDistance
 
 class AStarCornersAgent(SearchAgent):
   "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -433,33 +450,15 @@ class AStarFoodSearchAgent(SearchAgent):
     self.searchType = FoodSearchProblem
 
 def foodHeuristic(state, problem):
-  """
-  Your heuristic for the FoodSearchProblem goes here.
-  
-  This heuristic must be consistent to ensure correctness.  First, try to come up
-  with an admissible heuristic; almost all admissible heuristics will be consistent
-  as well.
-  
-  If using A* ever finds a solution that is worse uniform cost search finds,
-  your heuristic is *not* consistent, and probably not admissible!  On the other hand,
-  inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
-  
-  The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a 
-  Grid (see game.py) of either True or False. You can call foodGrid.asList()
-  to get a list of food coordinates instead.
-  
-  If you want access to info like walls, capsules, etc., you can query the problem.
-  For example, problem.walls gives you a Grid of where the walls are.
-  
-  If you want to *store* information to be reused in other calls to the heuristic,
-  there is a dictionary called problem.heuristicInfo that you can use. For example,
-  if you only want to count the walls once and store that value, try:
-    problem.heuristicInfo['wallCount'] = problem.walls.count()
-  Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
-  """
-  position, foodGrid = state
-  "*** YOUR CODE HERE ***"
-  return 0
+  currLoc = state[0]
+  currGrid = state[1]
+  food = currGrid.asList()
+  maxDistance = -sys.maxint -1
+  for i in food:
+    manhattanDistance = abs(i[0] - currLoc[0]) + abs(i[1] - currLoc[1])
+    if manhattanDistance > maxDistance:
+      maxDistance = manhattanDistance 
+  return maxDistance
   
 class ClosestDotSearchAgent(SearchAgent):
   "Search for all food using a sequence of searches"

@@ -144,7 +144,7 @@ def uniformCostSearch(problem):
     currDir = curr[0][1]
     currPath = curr[1]
     currCost = curr[2]
-    if(currLoc not in visited):
+    if currLoc not in visited:
       visited.append(currLoc)
       if(problem.isGoalState(currLoc)):
         return currPath
@@ -170,7 +170,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   "*** YOUR CODE HERE ***"
   frontier = util.PriorityQueue()
   visited = []
-  visited.append(problem.getStartState())
   h = heuristic(problem.getStartState(), problem)
   g = 0
   f = g + h
@@ -181,19 +180,20 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     currLoc = curr[0]
     currDir = curr[1]
     currCost = curr[2]
-    currPath = curr[3]
-    visited.append(currLoc)
-    if(problem.isGoalState(currLoc)):
-      return currPath
-    successors = problem.getSuccessors(currLoc)
-    successorsList = list(successors)
-    for i in successorsList:
-      if i[0] not in visited:
-        h = heuristic(i[0], problem)
-        g = currCost + i[2]
-        f = g + h
-        newNode = (i[0], i[1], g, currPath+[i[1]])
-        frontier.push(newNode, f)
+    if currLoc not in visited:
+      currPath = curr[3]
+      visited.append(currLoc)
+      successors = problem.getSuccessors(currLoc)
+      successorsList = list(successors)
+      for i in successorsList:
+        if i[0] not in visited:
+          if(problem.isGoalState(i[0])):
+            return currPath + [i[1]]
+          h = heuristic(i[0], problem)
+          g = currCost + i[2]
+          f = g + h
+          newNode = (i[0], i[1], g, currPath+[i[1]])
+          frontier.push(newNode, f)
   return []
   
 # Abbreviations
